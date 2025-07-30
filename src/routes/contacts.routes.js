@@ -17,11 +17,6 @@ import {
 const router = express.Router();
 
 router.get('/', ctrlWrapper(getContactsController));
-router.get('/:contactId', ctrlWrapper(getContactByIdController));
-router.post('/', ctrlWrapper(createContactController));
-router.patch('/:contactId', ctrlWrapper(updateContactController));
-router.delete('/:contactId', ctrlWrapper(deleteContactController));
-router.get('/', ctrlWrapper(getContactsController));
 router.get('/:contactId', isValidId, ctrlWrapper(getContactByIdController));
 router.post(
   '/',
@@ -35,4 +30,5 @@ router.patch(
   ctrlWrapper(updateContactController),
 );
 router.delete('/:contactId', isValidId, ctrlWrapper(deleteContactController));
+
 export default router;
