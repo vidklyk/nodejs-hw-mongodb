@@ -4,7 +4,7 @@ import pino from 'pino-http';
 import contactsRouter from './routes/contacts.routes.js';
 import notFoundHandler from './middlewares/notFoundHandler.js';
 import errorHandler from './middlewares/errorHandler.js';
-import authRouter from './routes/auth.routers.js';
+import authRouter from './routes/auth.routes.js';
 
 export const setupServer = () => {
   const app = express();
