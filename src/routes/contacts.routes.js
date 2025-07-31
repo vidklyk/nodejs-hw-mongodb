@@ -13,22 +13,29 @@ import {
   createContactSchema,
   updateContactSchema,
 } from '../schemas/contacts.js';
+import authenticate from '../middlewares/authenticate.js';
 
 const router = express.Router();
 
+router.use(authenticate);
+
 router.get('/', ctrlWrapper(getContactsController));
+
 router.get('/:contactId', isValidId, ctrlWrapper(getContactByIdController));
+
 router.post(
   '/',
   validateBody(createContactSchema),
   ctrlWrapper(createContactController),
 );
+
 router.patch(
   '/:contactId',
   isValidId,
   validateBody(updateContactSchema),
   ctrlWrapper(updateContactController),
 );
+
 router.delete('/:contactId', isValidId, ctrlWrapper(deleteContactController));
 
 export default router;
