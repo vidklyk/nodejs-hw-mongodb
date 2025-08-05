@@ -2,6 +2,8 @@ import { register, login, refreshSession } from '../services/auth.js';
 import createHttpError from 'http-errors';
 import Session from '../models/session.model.js';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const registerController = async (req, res) => {
   const newUser = await register(req.body);
 
@@ -24,14 +26,14 @@ export const loginController = async (req, res) => {
     .cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: false,
+      secure: isProduction,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     })
     .status(200)
     .json({
       status: 200,
       message: 'Successfully logged in an user!',
-      data: { accessToken, refreshToken },
+      data: { accessToken },
     });
 };
 
@@ -58,14 +60,14 @@ export const refreshSessionController = async (req, res) => {
     .cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: true,
+      secure: isProduction,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     })
     .status(200)
     .json({
       status: 200,
       message: 'Successfully refreshed a session!',
-      data: { accessToken, refreshToken: newRefreshToken },
+      data: { accessToken },
     });
 };
 
