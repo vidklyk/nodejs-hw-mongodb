@@ -24,7 +24,7 @@ export const loginController = async (req, res) => {
     .cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: true,
+      secure: false,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     })
     .status(200)
