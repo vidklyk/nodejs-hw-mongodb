@@ -31,12 +31,24 @@ export const loginController = async (req, res) => {
     .json({
       status: 200,
       message: 'Successfully logged in an user!',
-      data: { accessToken },
+      data: { accessToken, refreshToken },
     });
 };
 
 export const refreshSessionController = async (req, res) => {
-  const refreshToken = req.cookies?.refreshToken;
+  let refreshToken = req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    const authHeader = req.headers.authorization || '';
+    const [type, token] = authHeader.split(' ');
+    if (type === 'Bearer' && token) {
+      refreshToken = token;
+    }
+  }
+
+  if (!refreshToken) {
+    throw createHttpError(401, 'Refresh token missing');
+  }
 
   const { accessToken, refreshToken: newRefreshToken } = await refreshSession(
     refreshToken,
@@ -46,18 +58,27 @@ export const refreshSessionController = async (req, res) => {
     .cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       sameSite: 'strict',
+      secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     })
     .status(200)
     .json({
       status: 200,
       message: 'Successfully refreshed a session!',
-      data: { accessToken },
+      data: { accessToken, refreshToken: newRefreshToken },
     });
 };
 
 export const logoutUserController = async (req, res) => {
-  const refreshToken = req.cookies?.refreshToken;
+  let refreshToken = req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    const authHeader = req.headers.authorization || '';
+    const [type, token] = authHeader.split(' ');
+    if (type === 'Bearer' && token) {
+      refreshToken = token;
+    }
+  }
 
   if (!refreshToken) {
     throw createHttpError(401, 'Refresh token not found');
