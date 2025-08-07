@@ -1,4 +1,5 @@
 import Contact from '../models/contact.model.js';
+import cloudinary from '../services/cloudinary.js';
 
 export const getAllContacts = async (userId, query) => {
   const {
@@ -41,11 +42,43 @@ export const getAllContacts = async (userId, query) => {
 export const getContactById = (id, userId) =>
   Contact.findOne({ _id: id, userId });
 
-export const createContact = (data, userId) =>
-  Contact.create({ ...data, userId });
+export const createContact = async (data, userId, file) => {
+  let photo;
+  if (file) {
+    photo = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: 'image' },
+        (err, result) => {
+          if (err) return reject(err);
+          resolve(result.secure_url);
+        },
+      );
+      stream.end(file.buffer);
+    });
+  }
+  return Contact.create({ ...data, userId, photo });
+};
 
-export const updateContact = (id, data, userId) =>
-  Contact.findOneAndUpdate({ _id: id, userId }, data, { new: true });
+export const updateContact = async (id, data, userId, file) => {
+  let photo;
+  if (file) {
+    photo = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: 'image' },
+        (err, result) => {
+          if (err) return reject(err);
+          resolve(result.secure_url);
+        },
+      );
+      stream.end(file.buffer);
+    });
+  }
+  const updateData = { ...data };
+  if (photo) updateData.photo = photo;
+  return Contact.findOneAndUpdate({ _id: id, userId }, updateData, {
+    new: true,
+  });
+};
 
 export const deleteContact = (id, userId) =>
   Contact.findOneAndDelete({ _id: id, userId });
