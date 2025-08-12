@@ -1,20 +1,35 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-const contactSchema = new mongoose.Schema(
+const contactSchema = new Schema(
   {
-    name: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
-    email: { type: String },
-    isFavourite: { type: Boolean, default: false },
-    contactType: {
+    name: {
       type: String,
-      enum: ['work', 'home', 'personal'],
-      default: 'personal',
+      required: true,
+      minlength: 3,
+      maxlength: 20,
+    },
+    phoneNumber: {
+      type: String,
       required: true,
     },
-    photo: { type: String },
+    email: {
+      type: String,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    },
+    isFavourite: {
+      type: Boolean,
+      default: false,
+    },
+    contactType: {
+      type: String,
+      enum: ['personal', 'business', 'other'],
+      required: true,
+    },
+    photo: {
+      type: String, // URL з Cloudinary
+    },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
@@ -22,5 +37,6 @@ const contactSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const Contact = mongoose.model('Contact', contactSchema);
+const Contact = model('Contact', contactSchema);
+
 export default Contact;

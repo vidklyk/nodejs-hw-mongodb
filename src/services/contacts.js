@@ -1,68 +1,117 @@
+import fs from 'fs/promises';
 import Contact from '../models/contact.model.js';
-import { uploadToCloudinary } from '../services/cloudinary.js';
+import { uploadToCloudinary } from './cloudinary.js';
 
-export const getAllContacts = async (userId, query) => {
+export const getAllContacts = async (userId, query = {}) => {
   const {
     page = 1,
     perPage = 10,
-    sortBy = 'name',
-    sortOrder = 'asc',
-    type,
+    sortBy = 'createdAt',
+    sortOrder = 'desc',
     isFavourite,
+    contactType,
+    search,
   } = query;
 
-  const skip = (page - 1) * perPage;
-  const sortDirection = sortOrder === 'desc' ? -1 : 1;
-
   const filter = { userId };
-  if (type) filter.contactType = type;
-  if (isFavourite !== undefined) filter.isFavourite = isFavourite === 'true';
 
-  const totalItems = await Contact.countDocuments(filter);
-  const totalPages = Math.ceil(totalItems / perPage);
-  const hasPreviousPage = page > 1;
-  const hasNextPage = page < totalPages;
+  if (typeof isFavourite !== 'undefined') {
+    if (isFavourite === 'true' || isFavourite === true)
+      filter.isFavourite = true;
+    if (isFavourite === 'false' || isFavourite === false)
+      filter.isFavourite = false;
+  }
 
-  const contacts = await Contact.find(filter)
-    .sort({ [sortBy]: sortDirection })
-    .skip(skip)
-    .limit(Number(perPage));
+  if (contactType) {
+    filter.contactType = contactType;
+  }
+
+  if (search) {
+    // Пошук по name/phoneNumber/email
+    const regex = new RegExp(search, 'i');
+    filter.$or = [{ name: regex }, { phoneNumber: regex }, { email: regex }];
+  }
+
+  const pageNum = Math.max(Number(page) || 1, 1);
+  const limit = Math.max(Number(perPage) || 10, 1);
+  const skip = (pageNum - 1) * limit;
+
+  const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+
+  const [items, total] = await Promise.all([
+    Contact.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+    Contact.countDocuments(filter),
+  ]);
 
   return {
-    data: contacts,
-    page: Number(page),
-    perPage: Number(perPage),
-    totalItems,
-    totalPages,
-    hasPreviousPage,
-    hasNextPage,
+    items,
+    total,
+    page: pageNum,
+    perPage: limit,
+    totalPages: Math.ceil(total / limit),
   };
 };
 
-export const getContactById = (id, userId) =>
-  Contact.findOne({ _id: id, userId });
-
-export const createContact = async (data, userId, file) => {
-  let photo;
-  if (file) {
-    const result = await uploadToCloudinary(file.buffer, 'contacts');
-    photo = result.secure_url;
-  }
-  return Contact.create({ ...data, userId, photo });
+export const getContactById = async (contactId, userId) => {
+  return Contact.findOne({ _id: contactId, userId }).lean();
 };
 
-export const updateContact = async (id, data, userId, file) => {
-  let photo;
+export const createContact = async (body, userId, file) => {
+  let photoUrl;
+
   if (file) {
-    const result = await uploadToCloudinary(file.buffer, 'contacts');
-    photo = result.secure_url;
+    const buffer = await resolveFileBuffer(file);
+    if (buffer) {
+      const result = await uploadToCloudinary(buffer, `users/${userId}`);
+      photoUrl = result.secure_url;
+    }
   }
-  const updateData = { ...data };
-  if (photo) updateData.photo = photo;
-  return Contact.findOneAndUpdate({ _id: id, userId }, updateData, {
-    new: true,
+
+  const doc = await Contact.create({
+    ...body,
+    userId,
+    ...(photoUrl ? { photo: photoUrl } : {}),
   });
+
+  return doc;
 };
 
-export const deleteContact = (id, userId) =>
-  Contact.findOneAndDelete({ _id: id, userId });
+export const updateContact = async (contactId, body, userId, file) => {
+  const update = { ...body };
+
+  if (file) {
+    const buffer = await resolveFileBuffer(file);
+    if (buffer) {
+      const result = await uploadToCloudinary(buffer, `users/${userId}`);
+      update.photo = result.secure_url;
+    }
+  }
+
+  const doc = await Contact.findOneAndUpdate(
+    { _id: contactId, userId },
+    update,
+    { new: true },
+  );
+
+  return doc;
+};
+
+export const deleteContact = async (contactId, userId) => {
+  return Contact.findOneAndDelete({ _id: contactId, userId });
+};
+
+const resolveFileBuffer = async (file) => {
+  if (file.buffer) return file.buffer;
+
+  if (file.path) {
+    try {
+      const buf = await fs.readFile(file.path);
+      await fs.unlink(file.path).catch(() => {});
+      return buf;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
