@@ -8,7 +8,7 @@ const contactSchema = new Schema(
     isFavourite: { type: Boolean, default: false },
     contactType: {
       type: String,
-      enum: ['home', 'work', 'personal', 'business', 'other'],
+      enum: ['home', 'work', 'personal'],
       required: true,
     },
     photo: { type: String },
@@ -17,5 +17,4 @@ const contactSchema = new Schema(
   { timestamps: true },
 );
 
-const Contact = model('Contact', contactSchema);
-export default Contact;
+export default model('Contact', contactSchema);
