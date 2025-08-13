@@ -27,7 +27,6 @@ export const getAllContacts = async (userId, query = {}) => {
   }
 
   if (search) {
-    // Пошук по name/phoneNumber/email
     const regex = new RegExp(search, 'i');
     filter.$or = [{ name: regex }, { phoneNumber: regex }, { email: regex }];
   }
