@@ -6,23 +6,23 @@ const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM } =
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
   port: Number(SMTP_PORT),
-  secure: Number(SMTP_PORT) === 465,
+  secure: false,
   auth: {
     user: SMTP_USER,
     pass: SMTP_PASSWORD,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
 });
 
 const sendEmail = async (to, subject, html) => {
-  await transporter.sendMail({
+  const mailOptions = {
     from: SMTP_FROM,
     to,
     subject,
     html,
-  });
+  };
+
+  const info = await transporter.sendMail(mailOptions);
+  return info;
 };
 
 export default sendEmail;
