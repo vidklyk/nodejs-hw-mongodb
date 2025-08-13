@@ -29,7 +29,7 @@ export const sendResetEmail = async (req, res, next) => {
     try {
       await sendEmail(email, subject, html);
     } catch (err) {
-      console.error('Email error:', err?.message || err);
+      console.error('Email error:', err);
       throw createHttpError(
         500,
         'Failed to send the email, please try again later.',
