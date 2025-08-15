@@ -1,0 +1,50 @@
+tags: [Contacts]
+summary: Get contacts list
+operationId: getContacts
+description: Returns a paginated list of contacts. Supports filtering and sorting.
+security:
+  - bearerAuth: []
+parameters:
+  - in: query
+    name: page
+    schema: { type: integer, minimum: 1, default: 1 }
+    description: Page number
+  - in: query
+    name: perPage
+    schema: { type: integer, minimum: 1, default: 10 }
+    description: Items per page
+  - in: query
+    name: sortBy
+    schema: { type: string, default: createdAt }
+    description: Field to sort by
+  - in: query
+    name: sortOrder
+    schema: { type: string, enum: [asc, desc], default: desc }
+    description: Sort order
+  - in: query
+    name: isFavourite
+    schema: { type: boolean }
+    description: Filter by favourite
+  - in: query
+    name: contactType
+    schema:
+      type: string
+      enum: [home, work, personal, business, other]
+    description: Filter by contact type
+  - in: query
+    name: search
+    schema: { type: string }
+    description: Case-insensitive search in name/phoneNumber/email
+responses:
+  '200':
+    description: List of contacts (paginated)
+    content:
+      application/json:
+        schema:
+          $ref: '../../../openapi.yaml#/components/schemas/PaginatedContacts'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '../../../openapi.yaml#/components/schemas/ErrorResponse'
