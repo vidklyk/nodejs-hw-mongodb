@@ -1,0 +1,42 @@
+tags: [Contacts]
+summary: Update contact by id
+operationId: updateContact
+description: Updates contact fields. Accepts **multipart/form-data** (you may send only changed fields).
+security:
+  - bearerAuth: []
+parameters:
+  - in: path
+    name: contactId
+    required: true
+    schema: { type: string }
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        $ref: '../../../../openapi.yaml#/components/schemas/ContactUpdateRequest'
+responses:
+  '200':
+    description: Contact updated
+    content:
+      application/json:
+        schema:
+          $ref: '../../../../openapi.yaml#/components/schemas/Contact'
+  '400':
+    description: Validation error
+    content:
+      application/json:
+        schema:
+          $ref: '../../../../openapi.yaml#/components/schemas/ErrorResponse'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '../../../../openapi.yaml#/components/schemas/ErrorResponse'
+  '404':
+    description: Contact not found
+    content:
+      application/json:
+        schema:
+          $ref: '../../../../openapi.yaml#/components/schemas/ErrorResponse'

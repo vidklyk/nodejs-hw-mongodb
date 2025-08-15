@@ -1,0 +1,31 @@
+tags: [Contacts]
+summary: Create a contact
+operationId: createContact
+description: Creates a new contact. Accepts **multipart/form-data** with optional photo file.
+security:
+  - bearerAuth: []
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        $ref: '../../../openapi.yaml#/components/schemas/ContactCreateRequest'
+responses:
+  '201':
+    description: Contact created
+    content:
+      application/json:
+        schema:
+          $ref: '../../../openapi.yaml#/components/schemas/Contact'
+  '400':
+    description: Validation error
+    content:
+      application/json:
+        schema:
+          $ref: '../../../openapi.yaml#/components/schemas/ErrorResponse'
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          $ref: '../../../openapi.yaml#/components/schemas/ErrorResponse'
