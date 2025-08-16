@@ -1,9 +1,8 @@
-tags: [Contacts]
+tags:
+  - Contacts
 summary: Create a contact
 operationId: createContact
-description: Creates a new contact. Accepts **multipart/form-data** with optional photo file.
-security:
-  - bearerAuth: []
+description: Створити новий контакт (підтримка multipart/form-data з фото).
 requestBody:
   required: true
   content:
@@ -12,11 +11,20 @@ requestBody:
         $ref: '../../../openapi.yaml#/components/schemas/ContactCreateRequest'
 responses:
   '201':
-    description: Contact created
+    description: Created
     content:
       application/json:
         schema:
-          $ref: '../../../openapi.yaml#/components/schemas/Contact'
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 201
+            message:
+              type: string
+              example: 'Contact created successfully'
+            data:
+              $ref: '../../../openapi.yaml#/components/schemas/Contact'
   '400':
     description: Validation error
     content:

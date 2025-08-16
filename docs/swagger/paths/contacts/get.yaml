@@ -1,47 +1,49 @@
-tags: [Contacts]
-summary: Get contacts list
+tags:
+  - Contacts
+summary: Get contacts (list)
 operationId: getContacts
-description: Returns a paginated list of contacts. Supports filtering and sorting.
-security:
-  - bearerAuth: []
+description: Отримати список контактів з пагінацією/фільтрами.
 parameters:
   - in: query
     name: page
-    schema: { type: integer, minimum: 1, default: 1 }
-    description: Page number
+    schema: { type: integer, minimum: 1, example: 1 }
   - in: query
     name: perPage
-    schema: { type: integer, minimum: 1, default: 10 }
-    description: Items per page
+    schema: { type: integer, minimum: 1, example: 10 }
   - in: query
     name: sortBy
-    schema: { type: string, default: createdAt }
-    description: Field to sort by
+    schema: { type: string, example: createdAt }
   - in: query
     name: sortOrder
-    schema: { type: string, enum: [asc, desc], default: desc }
-    description: Sort order
+    schema: { type: string, enum: [asc, desc], example: desc }
   - in: query
     name: isFavourite
-    schema: { type: boolean }
-    description: Filter by favourite
+    schema: { type: boolean, example: false }
   - in: query
     name: contactType
     schema:
       type: string
       enum: [home, work, personal, business, other]
-    description: Filter by contact type
+      example: personal
   - in: query
     name: search
-    schema: { type: string }
-    description: Case-insensitive search in name/phoneNumber/email
+    schema: { type: string, example: 'john' }
 responses:
   '200':
-    description: List of contacts (paginated)
+    description: OK
     content:
       application/json:
         schema:
-          $ref: '../../../openapi.yaml#/components/schemas/PaginatedContacts'
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Contacts fetched successfully'
+            data:
+              $ref: '../../../openapi.yaml#/components/schemas/PaginatedContacts'
   '401':
     description: Unauthorized
     content:

@@ -14,7 +14,7 @@
       "url": "http://localhost:3000"
     },
     {
-      "url": "https://hw6-email-and-images-2jkf.onrender.com"
+      "url": "https://hw7-swagger-72ig.onrender.com"
     }
   ],
   "security": [
@@ -34,14 +34,9 @@
         "tags": [
           "Contacts"
         ],
-        "summary": "Get contacts list",
+        "summary": "Get contacts (list)",
         "operationId": "getContacts",
-        "description": "Returns a paginated list of contacts. Supports filtering and sorting.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "description": "Отримати список контактів з пагінацією/фільтрами.",
         "parameters": [
           {
             "in": "query",
@@ -49,9 +44,8 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "default": 1
-            },
-            "description": "Page number"
+              "example": 1
+            }
           },
           {
             "in": "query",
@@ -59,18 +53,16 @@
             "schema": {
               "type": "integer",
               "minimum": 1,
-              "default": 10
-            },
-            "description": "Items per page"
+              "example": 10
+            }
           },
           {
             "in": "query",
             "name": "sortBy",
             "schema": {
               "type": "string",
-              "default": "createdAt"
-            },
-            "description": "Field to sort by"
+              "example": "createdAt"
+            }
           },
           {
             "in": "query",
@@ -81,17 +73,16 @@
                 "asc",
                 "desc"
               ],
-              "default": "desc"
-            },
-            "description": "Sort order"
+              "example": "desc"
+            }
           },
           {
             "in": "query",
             "name": "isFavourite",
             "schema": {
-              "type": "boolean"
-            },
-            "description": "Filter by favourite"
+              "type": "boolean",
+              "example": false
+            }
           },
           {
             "in": "query",
@@ -104,26 +95,39 @@
                 "personal",
                 "business",
                 "other"
-              ]
-            },
-            "description": "Filter by contact type"
+              ],
+              "example": "personal"
+            }
           },
           {
             "in": "query",
             "name": "search",
             "schema": {
-              "type": "string"
-            },
-            "description": "Case-insensitive search in name/phoneNumber/email"
+              "type": "string",
+              "example": "john"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "List of contacts (paginated)",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedContacts"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Contacts fetched successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PaginatedContacts"
+                    }
+                  }
                 }
               }
             }
@@ -146,12 +150,7 @@
         ],
         "summary": "Create a contact",
         "operationId": "createContact",
-        "description": "Creates a new contact. Accepts **multipart/form-data** with optional photo file.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "description": "Створити новий контакт (підтримка multipart/form-data з фото).",
         "requestBody": {
           "required": true,
           "content": {
@@ -164,11 +163,24 @@
         },
         "responses": {
           "201": {
-            "description": "Contact created",
+            "description": "Created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Contact"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 201
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Contact created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Contact"
+                    }
+                  }
                 }
               }
             }
@@ -203,29 +215,38 @@
         ],
         "summary": "Get contact by id",
         "operationId": "getContactById",
-        "description": "Returns a single contact by id",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "description": "Отримати контакт за його ідентифікатором.",
         "parameters": [
           {
             "in": "path",
             "name": "contactId",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "66b91a..."
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Contact found",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Contact"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Contact fetched successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Contact"
+                    }
+                  }
                 }
               }
             }
@@ -256,21 +277,17 @@
         "tags": [
           "Contacts"
         ],
-        "summary": "Update contact by id",
+        "summary": "Update contact",
         "operationId": "updateContact",
-        "description": "Updates contact fields. Accepts **multipart/form-data** (you may send only changed fields).",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "description": "Оновити контакт (підтримка multipart/form-data з фото).",
         "parameters": [
           {
             "in": "path",
             "name": "contactId",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "66b91a..."
             }
           }
         ],
@@ -286,11 +303,24 @@
         },
         "responses": {
           "200": {
-            "description": "Contact updated",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Contact"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Contact updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Contact"
+                    }
+                  }
                 }
               }
             }
@@ -331,34 +361,23 @@
         "tags": [
           "Contacts"
         ],
-        "summary": "Delete contact by id",
+        "summary": "Delete contact",
         "operationId": "deleteContact",
-        "description": "Deletes a contact by id",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "description": "Видалити контакт за ідентифікатором.",
         "parameters": [
           {
             "in": "path",
             "name": "contactId",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "66b91a..."
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Contact deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Contact"
-                }
-              }
-            }
+          "204": {
+            "description": "No Content (contact deleted)"
           },
           "401": {
             "description": "Unauthorized",
