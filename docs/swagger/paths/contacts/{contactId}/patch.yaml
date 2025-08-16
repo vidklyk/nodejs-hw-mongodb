@@ -1,14 +1,13 @@
-tags: [Contacts]
-summary: Update contact by id
+tags:
+  - Contacts
+summary: Update contact
 operationId: updateContact
-description: Updates contact fields. Accepts **multipart/form-data** (you may send only changed fields).
-security:
-  - bearerAuth: []
+description: Оновити контакт (підтримка multipart/form-data з фото).
 parameters:
   - in: path
     name: contactId
     required: true
-    schema: { type: string }
+    schema: { type: string, example: '66b91a...' }
 requestBody:
   required: true
   content:
@@ -17,11 +16,20 @@ requestBody:
         $ref: '../../../../openapi.yaml#/components/schemas/ContactUpdateRequest'
 responses:
   '200':
-    description: Contact updated
+    description: OK
     content:
       application/json:
         schema:
-          $ref: '../../../../openapi.yaml#/components/schemas/Contact'
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Contact updated successfully'
+            data:
+              $ref: '../../../../openapi.yaml#/components/schemas/Contact'
   '400':
     description: Validation error
     content:
